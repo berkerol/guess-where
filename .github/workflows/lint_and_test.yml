@@ -1,0 +1,27 @@
+on: [push]
+jobs:
+  lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install flake8
+        run: pip install flake8
+      - name: Run flake8
+        run: flake8 guess_where.py && flake8 --ignore=E501 test_*
+  test:
+    needs: lint
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install pipenv
+        run: pip install pipenv
+      - name: Install dependencies
+        run: pipenv install --dev --deploy
+      - name: Run tests
+        run: pipenv run pytest test_get_guess_name.py
