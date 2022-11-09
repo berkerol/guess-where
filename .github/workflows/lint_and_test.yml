@@ -10,7 +10,7 @@ jobs:
       - name: Install flake8
         run: pip install flake8
       - name: Run flake8
-        run: flake8 guess_where.py && flake8 --ignore=E501 test_*
+        run: flake8 --max-line-length 99 guess_where.py && flake8 --ignore=E501 test_*
   test:
     needs: lint
     runs-on: ubuntu-22.04
