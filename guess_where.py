@@ -3,21 +3,19 @@ import boto3
 from PIL import ImageTk, Image
 
 import os
-import pwd
+import pathlib
 import random
-import subprocess
 import sys
 
 from tkinter import Tk, ttk, Toplevel, filedialog, IntVar, StringVar
 
 S3_PREFIX = 's3://'
 FILE_EXTENSION = 'jpg'
-HOME_PATH = f'/home/{pwd.getpwuid(os.getuid())[0]}/'
-DOWNLOAD_PATH = f'{HOME_PATH}Pictures/Guess Where/'
+HOME_PATH = str(pathlib.Path.home())
+DOWNLOAD_PATH = os.path.join(HOME_PATH, 'Pictures', 'Guess Where')
 
 
-def get_guess_name(file_name):
-    file_name_components = file_name.split('/')
+def get_guess_name(file_name_components):
     first_dir_name = file_name_components[0]
     # format: date - order - country - city/**/jpg
     if ' - ' in first_dir_name:
@@ -35,7 +33,7 @@ def list_files_in_disk(path):
             if file_name.endswith(FILE_EXTENSION):
                 # remove directories in search path to get first contextful dir
                 short_name = file_name[(len(path) + 1):]
-                file_dict[file_name] = get_guess_name(short_name)
+                file_dict[file_name] = get_guess_name(pathlib.Path(short_name).parts)
 
     return file_dict
 
@@ -52,7 +50,7 @@ def list_files_in_s3(bucket, prefix):
                 # remove first directory to get first contextful directory
                 short_name = file_name[(file_name.find('/') + 1):]
                 # put s3 prefix to understand if we need to download the file
-                file_dict[S3_PREFIX + file_name] = get_guess_name(short_name)
+                file_dict[S3_PREFIX + file_name] = get_guess_name(short_name.split('/'))
         if 'NextContinuationToken' in response:
             token = response['NextContinuationToken']
             response = s3.list_objects_v2(Bucket=bucket, Prefix=prefix,
@@ -76,7 +74,7 @@ def process_s3_path(path):
     file_dict = list_files_in_s3(bucket, prefix)
     s3 = boto3.resource('s3').Bucket(bucket)
     # create the download path if it doesn't exist
-    subprocess.run(['mkdir', '-p', DOWNLOAD_PATH])
+    pathlib.Path(DOWNLOAD_PATH).mkdir(exist_ok=True)
     return file_dict, s3
 
 
@@ -84,7 +82,7 @@ def download_file_from_s3(file_name, s3):
     # remove s3 prefix
     obj = file_name[len(S3_PREFIX):]
     # add file name to download path
-    download_path = DOWNLOAD_PATH + obj.split('/')[-1]
+    download_path = os.path.join(DOWNLOAD_PATH, obj.split('/')[-1])
     s3.download_file(obj, download_path)
     return download_path
 
