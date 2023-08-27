@@ -95,8 +95,7 @@ if __name__ == '__main__':
 
     root = Tk()
     root.title('Guess Where')
-    root.attributes('-zoomed', True)
-    root.resizable(False, False)
+    root.attributes('-fullscreen', True)
     watch_time, sleep_time, s3_path = IntVar(value=5), IntVar(value=2), StringVar(value='s3://')
     status_text, score_text, streak_text = StringVar(), StringVar(), StringVar()
 
