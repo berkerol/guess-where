@@ -1,0 +1,65 @@
+on: [push]
+jobs:
+  lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install flake8
+        run: pip install flake8
+      - name: Run flake8
+        run: flake8 --max-line-length 99 guess_where.py && flake8 --ignore=E501 test_*
+  test:
+    needs: lint
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install pipenv
+        run: pip install pipenv
+      - name: Install dependencies
+        run: pipenv install --dev --deploy
+      - name: Run tests
+        run: pipenv run pytest test_get_guess_name.py
+  build:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [lint, test]
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, windows-2022, macos-12]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install pipenv
+        run: pip install pipenv
+      - name: Create requirements.txt
+        run: pipenv requirements > requirements.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Install pyinstaller
+        run: pip install pyinstaller
+      - name: Run build
+        run: pyinstaller guess_where.py --onefile --windowed --hidden-import='PIL._tkinter_finder'
+      - name: Rename for Ubuntu and MacOS
+        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
+        run: mv dist/guess_where dist/guess_where-${{ matrix.os }}
+      - name: Rename for Windows
+        if: startsWith(matrix.os, 'windows')
+        run: ren dist/guess_where.exe guess_where-${{ matrix.os }}.exe
+      - name: Release for Ubuntu and MacOS
+        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/guess_where-${{ matrix.os }}
+      - name: Release for Windows
+        if: startsWith(matrix.os, 'windows')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/guess_where-${{ matrix.os }}.exe
