@@ -1,7 +1,7 @@
 # Guess Where
 
 [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=berkerol_guess-where&metric=alert_status)](https://sonarcloud.io/dashboard?id=berkerol_guess-where)
-[![CI](https://github.com/berkerol/guess-where/actions/workflows/lint_and_test.yml/badge.svg?branch=master)](https://github.com/berkerol/guess-where/actions/workflows/lint_and_test.yml)
+[![CI](https://github.com/berkerol/guess-where/actions/workflows/lint_and_test_and_build.yml/badge.svg?branch=master)](https://github.com/berkerol/guess-where/actions/workflows/lint_and_test_and_build.yml)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](https://github.com/berkerol/guess-where/issues)
 [![license](https://img.shields.io/badge/license-GNU%20GPL%20v3.0-blue.svg)](https://github.com/berkerol/guess-where/blob/master/LICENSE)
 
@@ -72,7 +72,7 @@ Photos need to be downloaded before they can be viewed. They are downloaded to `
 
 ## Continous Integration
 
-It is setup using GitHub Actions in `.github/workflows/lint_and_test.yml`
+It is setup using GitHub Actions in `.github/workflows/lint_and_test_and_build.yml`
 
 ## Contribution
 
