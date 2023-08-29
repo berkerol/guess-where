@@ -1,6 +1,6 @@
 import boto3
 
-from PIL import ImageTk, Image
+from PIL import ImageTk, Image, ImageOps
 
 import os
 import pathlib
@@ -203,7 +203,9 @@ if __name__ == '__main__':
         # download file first to give it as input
         if file_name.startswith(S3_PREFIX):
             file_name = download_file_from_s3(file_name, s3)
-        set_photo(Image.open(file_name).copy().resize((photo_width, photo_height)))
+        image = ImageOps.exif_transpose(Image.open(file_name))
+        photo_width = int(photo_height / image.height * image.width)
+        set_photo(image.copy().resize((photo_width, photo_height)))
         status_text.set('')
         label_photo.after(watch_time.get() * 1000, lambda: set_photo(placeholder_image))
 
