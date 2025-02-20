@@ -1,13 +1,13 @@
-import boto3
-
-from PIL import ImageTk, Image, ImageOps
-
 import os
 import pathlib
 import random
 import sys
 
 from tkinter import Tk, ttk, Toplevel, filedialog, IntVar, StringVar
+
+import boto3
+
+from PIL import ImageTk, Image, ImageOps
 
 S3_PREFIX = 's3://'
 FILE_EXTENSION = 'jpg'
@@ -27,7 +27,7 @@ def get_guess_name(file_name_components):
 
 def list_files_in_disk(path):
     file_dict = {}
-    for root, dirs, files in os.walk(path):
+    for root, _, files in os.walk(path):
         for file in files:
             file_name = os.path.join(root, file)
             if file_name.endswith(FILE_EXTENSION):
@@ -88,7 +88,7 @@ def download_file_from_s3(file_name, s3):
 
 
 if __name__ == '__main__':
-    s3 = None
+    S3 = None
     file_list = []
     random_file = ('', '')
     correct_guesses, total_guesses, current_streak, highest_streak = 0, 0, 0, 0
@@ -127,8 +127,8 @@ if __name__ == '__main__':
             dismiss()
 
         def choose_s3_path():
-            global s3, file_list
-            file_dict, s3 = process_s3_path(s3_path.get())
+            global S3, file_list
+            file_dict, S3 = process_s3_path(s3_path.get())
             file_list = list(file_dict.items())
             dismiss()
 
@@ -151,7 +151,7 @@ if __name__ == '__main__':
     frame_info = ttk.Frame(root)
     frame_info.grid(column=0, row=0, sticky='EW')
 
-    def guess(event=None):
+    def guess():
         global correct_guesses, total_guesses, current_streak, highest_streak
         guess = entry_guess.get().lower()
         entry_guess.delete(0, 'end')
@@ -202,7 +202,7 @@ if __name__ == '__main__':
         file_name = random_file[0]
         # download file first to give it as input
         if file_name.startswith(S3_PREFIX):
-            file_name = download_file_from_s3(file_name, s3)
+            file_name = download_file_from_s3(file_name, S3)
         image = ImageOps.exif_transpose(Image.open(file_name))
         photo_width = int(photo_height / image.height * image.width)
         set_photo(image.copy().resize((photo_width, photo_height)))

@@ -8,9 +8,11 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install flake8
-        run: pip install flake8
+        run: pip install flake8 pylint
       - name: Run flake8
         run: flake8 --max-line-length 99 guess_where.py && flake8 --ignore=E501 test_*
+      - name: Run pylint
+        run: pylint guess_where.py --disable=C0114,C0116,E0401,W0602,W0603,W0621 && pylint test_* --disable=C0301,C0114,C0116,E0401
   test:
     runs-on: ubuntu-24.04
     steps:
