@@ -1,14 +1,14 @@
-import boto3
-
 import os
 import subprocess
+
+import boto3
 
 from guess_where import FILE_EXTENSION, DOWNLOAD_PATH, list_files_in_disk, list_files_in_s3, process_s3_path, download_file_from_s3
 
 
 def get_file_count(path):
-    process = subprocess.run(f'find "{path}" -type f -name "*.{FILE_EXTENSION}" | wc -l', shell=True, stdout=subprocess.PIPE)
-    return int(process.stdout.decode('utf-8'))
+    output = subprocess.check_output(f'find "{path}" -type f -name "*.{FILE_EXTENSION}" | wc -l', shell=True)
+    return int(output.decode('utf-8'))
 
 
 def test_list_files_in_disk_1():
